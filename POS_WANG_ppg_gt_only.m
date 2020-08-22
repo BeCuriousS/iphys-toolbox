@@ -1,4 +1,4 @@
-function [BVP, PR, HR_ECG, PR_PPG, SNR] = POS_WANG_ppg_gt_only(VideoFile, FS, PPGFile, PlotTF)
+function [BVP, PR, PR_PPG, SNR] = POS_WANG_ppg_gt_only(VideoFile, FS, PPGFile, PlotTF)
 % POS_WANG The Plane Orthogonal to Skin-Tone (POS) Method from: Wang, W., den Brinker, A. C., Stuijk, S., & de Haan, G. (2017). Algorithmic principles of remote PPG. IEEE Transactions on Biomedical Engineering, 64(7), 1479-1491. DOI: 10.1109/TBME.2016.2609282
 %
 %   Inputs:
@@ -47,15 +47,15 @@ end
 
 %% Load Video:
 VidObj = VideoReader(VideoFile);
-VidObj.CurrentTime = StartTime;
+% VidObj.CurrentTime = StartTime;
 
-FramesToRead = floor(Duration*VidObj.FrameRate); %video may be encoded at slightly different frame rate
+% FramesToRead = floor(Duration*VidObj.FrameRate); %video may be encoded at slightly different frame rate
 
 %% Read Video and Spatially Average:
-T = zeros(FramesToRead,1);%initialize time vector
-RGB = zeros(FramesToRead,3);%initialize color signal
+% T = zeros(FramesToRead,1);%initialize time vector
+% RGB = zeros(FramesToRead,3);%initialize color signal
 FN = 0;
-while hasFrame(VidObj) && (VidObj.CurrentTime <= StartTime+Duration)
+while hasFrame(VidObj) %&& (VidObj.CurrentTime <= StartTime+Duration)
     FN = FN+1;
     T(FN) = VidObj.CurrentTime;
     VidFrame = readFrame(VidObj);
