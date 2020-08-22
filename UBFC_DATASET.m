@@ -40,10 +40,10 @@ dirs     = {
  };
 
 %%
-
-%Iterate through all directories
 for i=1:size(dirs)
-    vidFolder   =   [root dirs(i)];    
+    fprintf('Processing subject %s \n', dirs{i});
+    
+    vidFolder   =   [root '/' dirs{i}];    
     
     % load ground truth
     ground_truth = dlmread( [vidFolder '/ground_truth.txt' ] );
@@ -51,20 +51,6 @@ for i=1:size(dirs)
     gt_HR = ground_truth( 2, : );
     gt_time = ground_truth( 3, : );
     
-    % open video file
-    vidObj = VideoReader([ vidFolder '' ]);
-    fps = vidObj.FrameRate;
-
-    n=0;
-    while hasFrame(vidObj)
-        % track frame index
-        n=n+1;
-
-        % read frame by frame
-        img = readFrame(vidObj);
-
-        % perform operations on frame
-        imshow( img );
-    end
-    %fprintf('%i: %i - %i ; %i - %i \n',i, n, length(gt_time), vidObj.Duration, gt_time(end));
+    BVP = POS_WANG_BVP([vidFolder '/vid.avi'], 30);
+    save(['2018_12_UBFC_Dataset/bvp_pos_upperBody/' dirs{i} '.mat'], 'BVP');
 end
