@@ -1,4 +1,4 @@
-function [SNR] = bvpsnr(BVP, FS, HR, PlotTF)
+function [SNR] = bvpsnr(BVP, FS, HR, PlotTF, Freq_bounds)
 %BVPSNR Estimates the signal-to-noise ratio of the blood volume pulse
 % signal. Adapted from the method by G. de Haan, TBME, 2013.
 % SNR calculated as the ratio (in dB) of power contained within +/- 0.1 Hz
@@ -30,7 +30,7 @@ N = (60*2*NyquistF)/FResBPM; %number of bins in power spectrum
 GTMask1 = (F >= HR_F-0.1)&(F <= HR_F+0.1);
 GTMask2 = (F >= HR_F*2-0.2)&(F <= HR_F*2+0.2);
 SPower = sum(Pxx(GTMask1|GTMask2));
-FMask2 = (F >= 0.5)&(F <= 4);
+FMask2 = (F >= Freq_bounds(1))&(F <= Freq_bounds(2));
 AllPower = sum(Pxx(FMask2));
 SNR = pow2db(SPower/(AllPower-SPower));
 
