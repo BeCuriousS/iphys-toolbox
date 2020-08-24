@@ -1,4 +1,4 @@
-function BVP = POS_WANG_BVP(VideoFile, FS)
+function [BVP, check] = POS_WANG_BVP(VideoFile, FS, roiDetAlg)
 % POS_WANG The Plane Orthogonal to Skin-Tone (POS) Method from: Wang, W., den Brinker, A. C., Stuijk, S., & de Haan, G. (2017). Algorithmic principles of remote PPG. IEEE Transactions on Biomedical Engineering, 64(7), 1479-1491. DOI: 10.1109/TBME.2016.2609282
 %
 %   Inputs:
@@ -31,10 +31,12 @@ RGB = zeros(FramesToRead,3);%initialize color signal
 FN = 0;
 
 % Create a cascade detector object.
-roiDetector = vision.CascadeObjectDetector('UpperBody');
-% roiDetector = vision.CascadeObjectDetector();
+roiDetector = vision.CascadeObjectDetector(roiDetAlg);
 
 bbox_last = [0 0 VidObj.Height VidObj.Width];
+
+save_every_n_frame = 100;
+check = struct();
 
 while hasFrame(VidObj) %&& (VidObj.CurrentTime <= StartTime+Duration)
     FN = FN+1;
@@ -55,6 +57,8 @@ while hasFrame(VidObj) %&& (VidObj.CurrentTime <= StartTime+Duration)
     
     VidROI = VidFrame(bbox(end,2):bbox(end,2)+bbox(end,4), bbox(end,1):bbox(end,1)+bbox(end,3), :);
     
+    
+    
     if(SkinSegmentTF)%skin segmentation - originally specified in reference as an OC-SVM from Wang et al. 2015
         YCBCR = rgb2ycbcr(VidROI);
         Yth = YCBCR(:,:,1)>80;
@@ -64,6 +68,15 @@ while hasFrame(VidObj) %&& (VidObj.CurrentTime <= StartTime+Duration)
         RGB(FN,:) = squeeze(sum(sum(ROISkin,1),2)./sum(sum(logical(ROISkin),1),2));
     else
         RGB(FN,:) = sum(sum(VidROI,2)) ./ (size(VidROI,1)*size(VidROI,2));
+    end
+    
+    if mod(FN, save_every_n_frame) == 0
+        check(end+1).frameROI = VidROI;
+        if SkinSegmentTF
+            check(end).skinROI = ROISkin;
+        end
+        check(end).bbox = bbox;
+        check(end).frameIndex = FN;
     end
 end
 %% POS:
@@ -104,6 +117,4 @@ for n = 1:N-1%line 2 - loop from first to last frame in video sequence
 end%line 10 - end for
 
 BVP=H;
-T=T(1:length(BVP));
-
 end%end function

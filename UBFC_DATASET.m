@@ -45,12 +45,20 @@ for i=1:size(dirs)
     
     vidFolder   =   [root '/' dirs{i}];    
     
+    % roiDetector to use - UpperBody or FrontalFaceCART
+    roiDetAlg = 'UpperBody';
+%     roiDetAlg = 'FrontalFaceCART';
+    
     % load ground truth
     ground_truth = dlmread( [vidFolder '/ground_truth.txt' ] );
     gt_trace = ground_truth( 1, : );
     gt_HR = ground_truth( 2, : );
     gt_time = ground_truth( 3, : );
     
-    BVP = POS_WANG_BVP([vidFolder '/vid.avi'], 30);
-    save(['2018_12_UBFC_Dataset/bvp_pos_upperBody/' dirs{i} '.mat'], 'BVP');
+    % save computations
+    [BVP, check_data] = POS_WANG_BVP([vidFolder '/vid.avi'], 30, roiDetAlg);
+    path = ['2018_12_UBFC_Dataset/bvp_pos_' roiDetAlg '/'];
+    mkdir(path);
+    save([path dirs{i} '.mat'], 'BVP');
+    save([path dirs{i} '_check' '.mat'], 'check_data');
 end
