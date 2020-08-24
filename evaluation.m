@@ -3,8 +3,8 @@ clearvars
 % DeepPerfusion BVP
 dp_path = 'D:\GitLab\deepperfusion_ippg\data\eval\20200821-061926_2\2018_12_UBFC_Dataset\measurements\';
 % POS BVP
-pos_path = 'D:\GitHub\iphys-toolbox\2018_12_UBFC_Dataset\bvp_pos_face\';
-% pos_path = 'D:\GitHub\iphys-toolbox\2018_12_UBFC_Dataset\bvp_pos_upperBody\';
+% pos_path = 'D:\GitHub\iphys-toolbox\2018_12_UBFC_Dataset\bvp_pos_face\';
+pos_path = 'D:\GitHub\iphys-toolbox\2018_12_UBFC_Dataset\bvp_pos_upperBody\';
 % ground truth data
 gt_path = 'D:\GitHub\iphys-toolbox\2018_12_UBFC_Dataset\ground_truth\';
 
@@ -90,7 +90,7 @@ end
 % set parameters
 spectrum_window_size = 10; % in sec
 window_stride = 1; % in sec
-ref_HR = 'PR_fromPeaks'; % 'PR' (from BVP), 'PR_fromHR', 'PR_fromPeaks'
+ref_HR = 'PR'; % 'PR' (from BVP), 'PR_fromHR', 'PR_fromPeaks'
 resample_fs = 125; % Hz
 
 % Parameters of the bandpass filter
@@ -169,18 +169,35 @@ end
 % compute metrics
 mae_dp = zeros(1, size(gt_data,2));
 mae_pos = zeros(1, size(gt_data,2));
+mse_dp = zeros(1, size(gt_data,2));
+mse_pos = zeros(1, size(gt_data,2));
 snr_dp = zeros(1, size(gt_data,2));
 snr_pos = zeros(1, size(gt_data,2));
+
+mae_dp_signal = zeros(1, size(gt_data,2));
+mse_dp_signal = zeros(1, size(gt_data,2));
 for i = 1:size(gt_data,2)
     mae_dp(i) = mean(abs(dp_data(i).PR - gt_data(i).(ref_HR)));
     mae_pos(i) = mean(abs(pos_data(i).PR - gt_data(i).(ref_HR)));
+    mse_dp(i) = mean((dp_data(i).PR - gt_data(i).(ref_HR)).^2)^0.5;
+    mse_pos(i) = mean((pos_data(i).PR - gt_data(i).(ref_HR)).^2)^0.5;
     snr_dp(i) = mean(dp_data(i).SNR);
     snr_pos(i) = mean(pos_data(i).SNR);
+    mae_dp_signal(i) = mean(abs(dp_data(i).BVP_pp - gt_data(i).BVP_pp));
+    mse_dp_signal(i) = mean((dp_data(i).BVP_pp - gt_data(i).BVP_pp).^2)^0.5;
 end
-clc;
-fprintf('\n>>>>>>>>>    MEAN ABSOLUTE ERRORS\n');
+
+fprintf('\n>>>>>>>>>    ERRORS OF DEEPPERFUSION BVP SIGNAL TO Ground truth\n');
+fprintf('Mean absolute error: %2.3f \n', mean(mae_dp_signal));
+fprintf('Mean squared error:  %2.3f \n', mean(mse_dp_signal));
+
+fprintf('\n>>>>>>>>>    MEAN ABSOLUTE ERRORS TO Ground truth\n');
 fprintf('Mean absolute error deepPerfusion: %2.2f BPM \n', mean(mae_dp));
 fprintf('Mean absolute error pos:           %2.2f BPM \n', mean(mae_pos));
+
+fprintf('\n>>>>>>>>>    MEAN SQUARED ERRORS TO Ground truth\n');
+fprintf('Mean squared error deepPerfusion: %2.2f BPM \n', mean(mse_dp));
+fprintf('Mean squared error pos:           %2.2f BPM \n', mean(mse_pos));
 
 fprintf('\n>>>>>>>>>    SNR\n');
 fprintf('SNR deepPerfusion: %2.2f dB \n', mean(snr_dp));
