@@ -16,7 +16,7 @@ function [PR] = prpsd(BVP, FS, LL_PR, UL_PR, PlotTF)
 
 %%
 Nyquist = FS/2;
-FResBPM = 0.5; %resolution (bpm) of bins in power spectrum used to determine PR and SNR
+FResBPM = 0.1; %resolution (bpm) of bins in power spectrum used to determine PR and SNR
 
 N = (60*2*Nyquist)/FResBPM;
 

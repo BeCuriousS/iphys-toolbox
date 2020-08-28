@@ -67,7 +67,6 @@ while hasFrame(VidObj) %&& (VidObj.CurrentTime <= StartTime+Duration)
     VidROI = VidFrame(bbox(end,2):bbox(end,2)+bbox(end,4), bbox(end,1):bbox(end,1)+bbox(end,3), :);
     
     
-    
     if(SkinSegmentTF)%skin segmentation - originally specified in reference as an OC-SVM from Wang et al. 2015
         YCBCR = rgb2ycbcr(VidROI);
         Yth = YCBCR(:,:,1)>80;

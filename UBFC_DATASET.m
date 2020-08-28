@@ -50,7 +50,9 @@ for i=1:size(dirs)
     roiDetAlg = 'FrontalFaceCART';
 %     roiDetAlg = 'NoDet';
 
-    useFGTransform = true;
+    useFGTransform = false;
+    
+    method = 'pos';
     
     % load ground truth
     ground_truth = dlmread( [vidFolder '/ground_truth.txt' ] );
@@ -59,8 +61,17 @@ for i=1:size(dirs)
     gt_time = ground_truth( 3, : );
     
     % save computations
-    [BVP, check_data] = POS_WANG_BVP([vidFolder '/vid.avi'], 30, roiDetAlg, useFGTransform);
-    path = ['2018_12_UBFC_Dataset/bvp_pos_FGTransform' roiDetAlg '/'];
+    if strcmp(method, 'pos')
+        [BVP, check_data] = POS_WANG_BVP([vidFolder '/vid.avi'], 30, roiDetAlg, useFGTransform);
+    elseif strcmp(method, 'chrom')
+        [BVP, check_data] = CHROM_DEHAAN_BVP([vidFolder '/vid.avi'], 30, roiDetAlg, useFGTransform);
+    end
+    
+    
+    path = ['2018_12_UBFC_Dataset/bvp_' method '_' roiDetAlg '/'];
+    if strcmp(method, 'pos') && useFGTransform
+        path = ['2018_12_UBFC_Dataset/bvp_' method '_FGTransform_' roiDetAlg '/'];
+    end
     mkdir(path);
     save([path dirs{i} '.mat'], 'BVP');
     save([path dirs{i} '_check' '.mat'], 'check_data');

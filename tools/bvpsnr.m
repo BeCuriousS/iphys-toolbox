@@ -22,7 +22,7 @@ function [SNR] = bvpsnr(BVP, FS, HR, PlotTF, Freq_bounds)
 HR_F=HR/60;
 
 NyquistF = FS/2;
-FResBPM = 0.5; %resolution (bpm) of bins in power spectrum used to determine PR and SNR
+FResBPM = 0.1; %resolution (bpm) of bins in power spectrum used to determine PR and SNR
 N = (60*2*NyquistF)/FResBPM; %number of bins in power spectrum
 
 %% Construct Periodogram
