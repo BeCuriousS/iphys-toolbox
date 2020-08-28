@@ -1,4 +1,4 @@
-function [BVP, check] = POS_WANG_BVP(VideoFile, FS, roiDetAlg)
+function [BVP, check] = POS_WANG_BVP(VideoFile, FS, roiDetAlg, useFGT)
 % POS_WANG The Plane Orthogonal to Skin-Tone (POS) Method from: Wang, W., den Brinker, A. C., Stuijk, S., & de Haan, G. (2017). Algorithmic principles of remote PPG. IEEE Transactions on Biomedical Engineering, 64(7), 1479-1491. DOI: 10.1109/TBME.2016.2609282
 %
 %   Inputs:
@@ -17,6 +17,9 @@ function [BVP, check] = POS_WANG_BVP(VideoFile, FS, roiDetAlg)
 %% Parameters
 SkinSegmentTF = true;
 
+LPF = 0.7; %low cutoff frequency (Hz) - specified as 40 bpm (~0.667 Hz) in reference
+HPF = 4; %high cutoff frequency (Hz) - specified as 240 bpm in reference
+
 WinSec=1.6;%(based on refrence's 32 frame window with a 20 fps camera)
 
 %% Load Video:
@@ -31,12 +34,16 @@ RGB = zeros(FramesToRead,3);%initialize color signal
 FN = 0;
 
 % Create a cascade detector object.
-roiDetector = vision.CascadeObjectDetector(roiDetAlg);
+if ~strcmp(roiDetAlg, 'NoDet')
+    roiDetector = vision.CascadeObjectDetector(roiDetAlg);
+end
 
-bbox_last = [0 0 VidObj.Height VidObj.Width];
+bbox_last = [1 1 VidObj.Width-1 VidObj.Height-1];
+bbox = bbox_last;
 
-save_every_n_frame = 100;
+save_every_n_frame = 2400;
 check = struct();
+cnt = 0;
 
 while hasFrame(VidObj) %&& (VidObj.CurrentTime <= StartTime+Duration)
     FN = FN+1;
@@ -47,11 +54,13 @@ while hasFrame(VidObj) %&& (VidObj.CurrentTime <= StartTime+Duration)
     %reference as a CSK detector from Henriques et al., 2012
     % Read a video frame and run the detector.
     if FN == 1 || mod(FN, 20) == 0
-        bbox = step(roiDetector, VidFrame);
-        if size(bbox, 1) > 0
-            bbox_last = bbox(end, :);
-        else
-            bbox = bbox_last;
+        if ~strcmp(roiDetAlg, 'NoDet')
+            bbox = step(roiDetector, VidFrame);
+            if size(bbox, 1) > 0
+                bbox_last = bbox(end, :);
+            else
+                bbox = bbox_last;
+            end
         end
     end
     
@@ -71,17 +80,18 @@ while hasFrame(VidObj) %&& (VidObj.CurrentTime <= StartTime+Duration)
     end
     
     if mod(FN, save_every_n_frame) == 0
-        check(end+1).frameROI = VidROI;
+        cnt = cnt + 1;
+        check(cnt).frameROI = VidROI;
         if SkinSegmentTF
-            check(end).skinROI = ROISkin;
+            check(cnt).skinROI = ROISkin;
         end
-        check(end).bbox = bbox;
-        check(end).frameIndex = FN;
+        check(cnt).bbox = bbox;
+        check(cnt).frameIndex = FN;
     end
 end
 %% POS:
 % Transform from: Wang, W., den Brinker, A. C., Stuijk, S., & de Haan, G. (2017, May). Color-distortion filtering for remote photoplethysmography. In Automatic Face & Gesture Recognition (FG 2017), 2017 12th IEEE International Conference on (pp. 71-78). IEEE.
-useFGTransform=false;
+useFGTransform=useFGT;
 if useFGTransform
     RGBBase = mean(RGB);
     RGBNorm = bsxfun(@times,RGB,1./RGBBase)-1;
