@@ -52,7 +52,7 @@ for i=1:size(dirs)
 
     useFGTransform = false;
     
-    method = 'pos';
+    method = 'chrom';
     
     % load ground truth
     ground_truth = dlmread( [vidFolder '/ground_truth.txt' ] );

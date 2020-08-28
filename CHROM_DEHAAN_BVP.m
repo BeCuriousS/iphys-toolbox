@@ -27,7 +27,7 @@ WinSec=1.6; %(was a 32 frame window with 20 fps camera)
 VidObj = VideoReader(VideoFile);
 % VidObj.CurrentTime = StartTime;
 
-FramesToRead=floor(Duration*VidObj.FrameRate); %video may be encoded at slightly different frame rate
+FramesToRead=floor(VidObj.Duration*VidObj.FrameRate); %video may be encoded at slightly different frame rate
 
 %% Read Video and Spatially Average:
 T = zeros(FramesToRead,1);%initialize time vector
