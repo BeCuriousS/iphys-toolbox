@@ -18,8 +18,8 @@ function [BVP, check] = CHROM_DEHAAN_BVP(VideoFile, FS, roiDetAlg, useFGT)
 %% Parameters
 SkinSegmentTF = true;
 
-LPF = 0.7; %low cutoff frequency (Hz) - specified as 40 bpm (~0.667 Hz) in reference
-HPF = 4; %high cutoff frequency (Hz) - specified as 240 bpm (~4.0 Hz) in reference
+LPF = 0.6; %low cutoff frequency (Hz) - specified as 40 bpm (~0.667 Hz) in reference
+HPF = 8.2; %high cutoff frequency (Hz) - specified as 240 bpm (~4.0 Hz) in reference
 
 WinSec=1.6; %(was a 32 frame window with 20 fps camera)
 
